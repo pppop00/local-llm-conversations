@@ -1,0 +1,24 @@
+# Local LLM Conversation System Dependencies
+# All processing happens locally - no external API costs!
+
+# Core dependency
+ollama>=0.1.7             # Local AI model interface (FREE after setup)
+
+# Optional utilities for enhanced functionality
+python-dateutil>=2.8.0   # Date/time handling for conversation logs
+colorama>=0.4.4           # Colored terminal output (optional)
+
+# Development dependencies (optional)
+pytest>=7.0.0             # Testing framework
+black>=23.0.0             # Code formatting
+
+# Note: Ollama must be installed separately
+# Visit https://ollama.ai for installation instructions
+# Models are free to download and run locally
+#
+# Required models for this project:
+# - ollama pull llama3.2
+# - ollama pull deepseek-r1:1.5b
+#
+# Total cost: $0 (after initial setup)
+# Privacy: 100% local processing, no data sent anywhere
