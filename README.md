@@ -133,61 +133,180 @@ python llm_conversation.py
 ### **Basic Usage (Copy & Paste Ready)**
 
 ```python
-from llm_conversation import LocalLLMConversation
+import ollama
 
-# Create conversation system
-chat = LocalLLMConversation()
+llama_model = "llama3.2"
+deepseek_model = "deepseek-r1:1.5b" 
 
-# Start a 3-round discussion
-chat.start_conversation(
-    initial_topic="What's the future of remote work?",
-    initial_response="I think it's here to stay, but it needs better tools.",
-    rounds=3
-)
+# Set your conversation topic here
+llama_messages = ["What's the future of remote work?"]
+deepseek_messages = ["I think it's here to stay, but it needs better tools."]
 
-# Save the conversation
-chat.save_conversation("remote_work_discussion.json")
+def call_ollama(model, history, system=None):
+    messages = [{"role": "system", "content": system}] if system else []
+    messages += history
+    response = ollama.chat(model=model, messages=messages)
+    return response['message']['content']
+
+# Run 5 rounds of conversation
+for _ in range(5):
+    # llama3 responds
+    llama_history = []
+    for u, a in zip(llama_messages, deepseek_messages):
+        llama_history.append({"role": "user", "content": u})
+        llama_history.append({"role": "assistant", "content": a})
+    llama_history.append({"role": "user", "content": llama_messages[-1]})
+    llama_reply = call_ollama(llama_model, llama_history)
+    print(f"\n🦙 llama3:\n{llama_reply}\n")
+    llama_messages.append(llama_reply)
+
+    # deepseek responds
+    deepseek_history = []
+    for u, a in zip(deepseek_messages, llama_messages[1:]):
+        deepseek_history.append({"role": "user", "content": u})
+        deepseek_history.append({"role": "assistant", "content": a})
+    deepseek_history.append({"role": "user", "content": deepseek_messages[-1]})
+    deepseek_reply = call_ollama(deepseek_model, deepseek_history)
+    print(f"\n🤖 deepseek-coder:\n{deepseek_reply}\n")
+    deepseek_messages.append(deepseek_reply)
 ```
+
+---
+
+## 🧠 How the Code Works (Step-by-Step Explanation)
+
+### **For Beginners & Non-Programmers**
+
+The code is surprisingly simple! Here's what each part does:
+
+#### **1. Setup the Models**
+```python
+llama_model = "llama3.2"
+deepseek_model = "deepseek-r1:1.5b" 
+```
+*This tells the program which AI models to use. Think of them as two different AI "personalities".*
+
+#### **2. Start the Conversation**
+```python
+llama_messages = ["Do you think AI will help or hurt humanity in the long run?"]
+deepseek_messages = ["That's a great question. I think it depends on how we build and use it."]
+```
+*These are the opening lines - like starting a debate between two people.*
+
+#### **3. The Magic Function**
+```python
+def call_ollama(model, history, system=None):
+    messages = [{"role": "system", "content": system}] if system else []
+    messages += history
+    response = ollama.chat(model=model, messages=messages)
+    return response['message']['content']
+```
+*This function talks to the AI models. It's like asking a question and getting an answer.*
+
+#### **4. The Conversation Loop**
+```python
+for _ in range(5):  # Do this 5 times
+```
+*This repeats the conversation for 5 rounds. You can change this number!*
+
+#### **5. Building Memory**
+```python
+llama_history = []
+for u, a in zip(llama_messages, deepseek_messages):
+    llama_history.append({"role": "user", "content": u})
+    llama_history.append({"role": "assistant", "content": a})
+```
+*This gives each AI model "memory" of what was said before, so they can have a real conversation.*
+
+#### **6. Getting Responses**
+```python
+llama_reply = call_ollama(llama_model, llama_history)
+print(f"\n🦙 llama3:\n{llama_reply}\n")
+llama_messages.append(llama_reply)
+```
+*Ask Llama for a response, print it out, and remember it for next time.*
+
+### **The Clever Part** 🤓
+
+Each AI model sees the conversation from their own perspective:
+- **Llama** sees DeepSeek's messages as "user input" 
+- **DeepSeek** sees Llama's messages as "user input"
+- This makes them respond to each other naturally!
+
+### **Easy Customizations**
+
+**Change the topic:**
+```python
+llama_messages = ["What's the best pizza topping?"]
+deepseek_messages = ["I think pepperoni is classic, but I'm curious about your thoughts."]
+```
+
+**Change the number of rounds:**
+```python
+for _ in range(10):  # Now they'll talk for 10 rounds instead of 5
+```
+
+**Use different models:**
+```python
+llama_model = "mistral:7b"  # Try a different model
+deepseek_model = "codellama"  # Or this one for coding discussions
+```
+
+---
 
 ### **Advanced Examples**
 
 #### **Philosophy Debate**
 ```python
-chat = LocalLLMConversation()
+import ollama
 
-chat.start_conversation(
-    initial_topic="Is free will real or just an illusion?",
-    initial_response="That's one of philosophy's hardest questions...",
-    rounds=5,
-    system_prompt1="You are a determinist philosopher who believes everything is predetermined.",
-    system_prompt2="You are a libertarian philosopher who believes in genuine free choice."
-)
+llama_model = "llama3.2"
+deepseek_model = "deepseek-r1:1.5b" 
+
+# Philosophy topic
+llama_messages = ["Is free will real or just an illusion?"]
+deepseek_messages = ["That's one of philosophy's hardest questions..."]
+
+def call_ollama(model, history, system=None):
+    messages = [{"role": "system", "content": system}] if system else []
+    messages += history
+    response = ollama.chat(model=model, messages=messages)
+    return response['message']['content']
+
+# Add personality with system prompts
+llama_system = "You are a determinist philosopher who believes everything is predetermined."
+deepseek_system = "You are a libertarian philosopher who believes in genuine free choice."
+
+for _ in range(5):
+    # Rest of the code stays the same, but add system prompts:
+    llama_reply = call_ollama(llama_model, llama_history, llama_system)
+    deepseek_reply = call_ollama(deepseek_model, deepseek_history, deepseek_system)
 ```
 
 #### **Business Strategy Discussion**
 ```python
-chat = LocalLLMConversation()
+# Business topic
+llama_messages = ["How should startups approach AI integration in 2025?"]
+deepseek_messages = ["Start small, focus on specific problems, measure impact."]
 
-chat.start_conversation(
-    initial_topic="How should startups approach AI integration in 2025?",
-    initial_response="Start small, focus on specific problems, measure impact.",
-    rounds=4,
-    system_prompt1="You are a cautious CFO focused on ROI and risk management.",
-    system_prompt2="You are an innovative CTO excited about AI possibilities."
-)
+# Business personalities
+llama_system = "You are a cautious CFO focused on ROI and risk management."
+deepseek_system = "You are an innovative CTO excited about AI possibilities."
+
+# Use same conversation loop as above
 ```
 
 #### **Technical Debate**
 ```python
-chat = LocalLLMConversation()
+# Technical topic
+llama_messages = ["Is Python or JavaScript better for beginners?"]
+deepseek_messages = ["Both have merits, but I lean toward Python for its readability."]
 
-chat.start_conversation(
-    initial_topic="Is Python or JavaScript better for beginners?",
-    initial_response="Both have merits, but I lean toward Python for its readability.",
-    rounds=3,
-    system_prompt1="You are a Python advocate who values simplicity and readability.",
-    system_prompt2="You are a JavaScript enthusiast who loves versatility and web focus."
-)
+# Technical personalities  
+llama_system = "You are a Python advocate who values simplicity and readability."
+deepseek_system = "You are a JavaScript enthusiast who loves versatility and web focus."
+
+# Use same conversation loop for 3 rounds
 ```
 
 ---
